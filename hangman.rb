@@ -1,4 +1,4 @@
-require 'YAML'
+require 'yaml'
 puts "Welcome to Hangman!"
 puts "Select an option"
 puts "1) Load a saved game"
@@ -16,11 +16,13 @@ class Game
     end
     @selected_word = ((words[rand*words.length]).downcase)
     @chances = 8
-    @curr_string = ("_"*@selected_word.length)
+    @curr_string = ("_"*(@selected_word.length-2))
     @game_status = true
     @misses = []
-    puts "\n Number of letters in the word: #{@selected_word.length} letters"
+    puts "\n Number of letters in the word: #{@selected_word.length-2} letters"
     puts @curr_string
+
+    self.user_input()
   end
 
   def user_output
@@ -28,10 +30,16 @@ class Game
   end
 
   def user_input
+    puts "Guess a letter or enter 5 to save"
     user_input = gets.chomp
     user_input = user_input.downcase
     if user_input.length>1
-      puts "Not valid input! try again"
+      puts "Not valid input! try again \n"
+      self.user_input
+    elsif user_input =="5"
+      self.save_progress
+    else
+      self.check_character(user_input)
     end
   end
 
@@ -40,9 +48,24 @@ class Game
        @misses.append(c)
        @chances-=1
     else
-      @selected_word.each do|ch|
-        #something
+      for i in 0..@selected_word.length - 3
+        if @selected_word[i]==c
+          @curr_string[i] = c
+        end
       end
+    end
+
+    self.check_game
+  end
+
+  def check_game
+    if @selected_word==@curr_string and @chances>=0
+      puts "Congrats you win!"
+    elsif @chances <=0
+      puts "You lose"
+    else
+      self.user_output
+      self.user_input
     end
   end
 
